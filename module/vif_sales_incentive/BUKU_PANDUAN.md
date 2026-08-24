@@ -373,6 +373,8 @@ Contoh yang ditolak: Rina resign 21 Agustus, Budi diisi join 21 Agustus di Bandu
 
 Pengecekan berjalan dua arah — mau yang diedit tanggal join-nya, atau tanggal resign rekannya, sama-sama ketahuan. Aturan ini **tidak** bergantung pada `ideal_team_size`, jadi tetap berlaku di cabang yang idealnya belum diisi.
 
+Kalau Budi join **sehari setelah** Rina resign (bukan tanggal yang sama) dan designation-nya sama, cascade otomatis menyambung keduanya jadi satu kursi — tidak ada bonus, lihat §8.6.1.
+
 ---
 
 ## 8. Setup Target & Cascade
@@ -510,6 +512,26 @@ Calculate di Branch Target     → payout ikut angka baru
   - Tiap Member: 354.839 × 1,0/3,5 = **101.383**
 
 Total cabang tetap 4.500.000 — prorata memindahkan uang antar bucket, tidak pernah menghilangkannya.
+
+### 8.6.1 Serah-terima kursi tanpa jeda (seamless handover)
+
+Contoh di atas mengasumsikan kursi yang resign **tidak diisi lagi** bulan itu. Kalau pengganti join **persis sehari setelah** tanggal resign, kursi itu tidak pernah kosong — sistem menyambung leaver dan pengganti jadi **satu kursi yang berpindah tangan**, bukan dua FTE terpisah.
+
+**Contoh:** tim ideal 4, target 4.500.000, Member resign 20 Agustus, pengganti (designation sama, Member) join 21 Agustus.
+
+- Yang resign: 1.000.000 × 20/31 = **645.161**
+- Pengganti: 1.000.000 × 11/31 = **354.839**
+- **Tidak ada yang masuk bonus.** Porsi 11/31 yang di contoh §8.6 tadi jadi bonus tim, sekarang langsung jadi target si pengganti — kursinya terisi penuh sepanjang bulan (20/31 + 11/31 = 31/31).
+- FTE penyebut tetap **3,5** (Lead 1,5 + 3 Member 1,0), bukan 4,5. Kalau leaver dan pengganti dihitung sebagai dua FTE terpisah, target Lead & Member lain ikut naik padahal jumlah kursi di tim tidak bertambah.
+
+Kalau ada **jeda** (pengganti baru join 25 Agustus, bukan 21), hari yang benar-benar tidak terisi (21–24 Agustus = 4/31) tetap masuk bonus pool seperti contoh §8.6 — hanya hari yang genuinely kosong yang jadi bonus, sisanya tetap tersambung ke leaver/pengganti.
+
+**Syarat penyambungan jadi satu kursi:**
+- Tanggal join pengganti harus **setelah** tanggal resign (boleh berjeda beberapa hari, tapi tidak boleh tanggal yang sama — ditolak sistem, lihat §7.1).
+- **Designation harus sama.** Lead diganti oleh Team Member (atau sebaliknya) dihitung sebagai dua kontributor terpisah, bukan satu kursi — tidak ada penyambungan lintas designation.
+- Pemasangan otomatis: pengganti dengan tanggal join paling dekat setelah tanggal resign, designation sama, dan belum "diklaim" oleh leaver lain (kalau ada beberapa resign/join bulan itu).
+
+Implementasi: `_seat_groups()` di `incentive_target_cascade.py`.
 
 ### 8.7 Banner "Population Changed" — pengaman lupa re-cascade
 
@@ -849,6 +871,7 @@ Mengikuti matriks **Refund Policies** (§6.4). Method `_match(stock_type, is_wip
 - Porsi redistribusi masuk ke **bucket bonus** penerima (`target_type='bonus'`).
 - Kursi yang ditinggalkan dan belum diisi record apa pun tetap menanggung porsinya lewat `ideal_team_size` (§8.5) — target orang yang bertahan tidak ikut naik.
 - Pengganti **tidak boleh** dientri mulai di tanggal yang sama dengan tanggal resign — simpan akan ditolak (§7.1).
+- Kalau pengganti join **sehari setelah** resign dan designation sama, keduanya disambung jadi satu kursi — sisa hari langsung jadi target pengganti, **bukan** bonus tim (§8.6.1). Hanya hari yang benar-benar kosong (jeda antara resign dan join) yang masuk bonus pool.
 
 ### 13.2 New hire mid-month
 
@@ -936,6 +959,7 @@ Semua perpindahan tercatat di **Target Movements** (From/To, jumlah, alasan, tan
 6. ~~Support mendapat branch incentive tapi tidak punya target individual — achievement apa yang menggerakkan tier branch-nya?~~ **✅ Terjawab** — tier branch digerakkan oleh pencapaian cabang (`branch_net_sales / branch_target`), bukan target individual; Support mendapat porsi pool branch dari bobot `fte_branch`.
 7. **Refund auto-reversal penuh belum otomatis** — 3 kasus UAT refund masih "NEED UPDATE". Yang tersedia: matriks policy + reversal manual + net-off credit note otomatis.
 8. **Kursi kosong selalu dihitung 1,0 FTE.** Kalau yang kosong posisi Lead (1,5), pakai record `Vacant Position` berdesignation Lead (§8.5).
+9. **Penyambungan serah-terima hanya antar designation yang sama.** Leaver Lead yang diganti Team Member dihitung dua kontributor terpisah, bukan satu kursi (§8.6.1) — bonus jadi lebih besar dari seharusnya kalau kombinasi itu dipakai. Perlu pemodelan kursi lintas designation kalau mau didukung.
 9. **Deteksi Population Changed melewatkan hire posisi Support** pada cascade scope Branch — baris target tidak menyimpan scope yang dipakai saat cascade (§8.7).
 10. **`needs_recascade` tidak stored** — tidak bisa dipakai sebagai filter atau group-by di search view; tersedia sebagai kolom list + banner form.
 

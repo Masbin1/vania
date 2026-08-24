@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_incentive_root" name="Sales Incentive"
+              web_icon="sale_management,static/description/icon.png"
+              sequence="85"
+              groups="group_incentive_user"/>
+
+    <!-- Operations -->
+    <menuitem id="menu_incentive_operations" name="Operations"
+              parent="menu_incentive_root" sequence="10"/>
+
+    <menuitem id="menu_incentive_my_payout" name="My Incentive"
+              parent="menu_incentive_operations"
+              action="action_incentive_my_payout" sequence="5"/>
+
+    <menuitem id="menu_incentive_period" name="Incentive Periods"
+              parent="menu_incentive_operations"
+              action="action_incentive_period" sequence="10"
+              groups="group_incentive_admin"/>
+
+    <menuitem id="menu_incentive_target" name="Targets"
+              parent="menu_incentive_operations"
+              action="action_incentive_target" sequence="20"/>
+
+    <menuitem id="menu_incentive_cascade" name="Cascade Branch Target"
+              parent="menu_incentive_operations"
+              action="action_incentive_target_cascade" sequence="25"
+              groups="group_incentive_admin"/>
+
+    <menuitem id="menu_incentive_branch_target" name="Branch Targets"
+              parent="menu_incentive_operations"
+              action="action_incentive_branch_target" sequence="27"
+              groups="group_incentive_admin"/>
+
+    <menuitem id="menu_incentive_movement" name="Target Movements"
+              parent="menu_incentive_operations"
+              action="action_incentive_target_movement" sequence="30"
+              groups="group_incentive_admin"/>
+
+    <!-- Reporting -->
+    <menuitem id="menu_incentive_reporting" name="Reporting"
+              parent="menu_incentive_root" sequence="20"/>
+
+    <menuitem id="menu_incentive_payout" name="Payouts"
+              parent="menu_incentive_reporting"
+              action="action_incentive_payout" sequence="10"/>
+
+    <menuitem id="menu_incentive_transaction" name="Transactions"
+              parent="menu_incentive_reporting"
+              action="action_incentive_transaction" sequence="20"/>
+
+    <!-- Configuration -->
+    <menuitem id="menu_incentive_config" name="Configuration"
+              parent="menu_incentive_root" sequence="90"
+              groups="group_incentive_admin"/>
+
+    <menuitem id="menu_incentive_rule" name="Rules &amp; Tiers"
+              parent="menu_incentive_config"
+              action="action_incentive_rule" sequence="10"/>
+
+    <menuitem id="menu_incentive_branch" name="Sales Branches"
+              parent="menu_incentive_config"
+              action="action_incentive_branch" sequence="20"/>
+
+    <menuitem id="menu_incentive_designation" name="FTE Designations"
+              parent="menu_incentive_config"
+              action="action_incentive_designation" sequence="30"/>
+
+    <menuitem id="menu_incentive_refund_policy" name="Refund Policies"
+              parent="menu_incentive_config"
+              action="action_incentive_refund_policy" sequence="40"/>
+
+</odoo>

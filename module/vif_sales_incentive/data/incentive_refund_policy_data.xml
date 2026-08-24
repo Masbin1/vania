@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- 'Kebijakan Refund (Business Risk)' matrix -->
+
+        <record id="refund_wip_customer" model="incentive.refund.policy">
+            <field name="name">Any stock / WIP / customer-initiated</field>
+            <field name="sequence">10</field>
+            <field name="stock_type">any</field>
+            <field name="is_wip" eval="True"/>
+            <field name="payment_status">any</field>
+            <field name="initiator">customer</field>
+            <field name="refund_pct">0.0</field>
+            <field name="note">No refund.</field>
+        </record>
+
+        <record id="refund_indent_customer" model="incentive.refund.policy">
+            <field name="name">Indent / not WIP / customer-initiated</field>
+            <field name="sequence">20</field>
+            <field name="stock_type">indent</field>
+            <field name="is_wip" eval="False"/>
+            <field name="payment_status">any</field>
+            <field name="initiator">customer</field>
+            <field name="refund_pct">0.0</field>
+            <field name="note">No refund.</field>
+        </record>
+
+        <record id="refund_available_customer" model="incentive.refund.policy">
+            <field name="name">Available stock / not WIP / customer-initiated</field>
+            <field name="sequence">30</field>
+            <field name="stock_type">available</field>
+            <field name="is_wip" eval="False"/>
+            <field name="payment_status">any</field>
+            <field name="initiator">customer</field>
+            <field name="refund_pct">99.0</field>
+        </record>
+
+        <record id="refund_service_customer" model="incentive.refund.policy">
+            <field name="name">Jasa Curtain / not WIP / customer-initiated</field>
+            <field name="sequence">40</field>
+            <field name="stock_type">service</field>
+            <field name="is_wip" eval="False"/>
+            <field name="payment_status">any</field>
+            <field name="initiator">customer</field>
+            <field name="refund_pct">99.0</field>
+        </record>
+
+        <record id="refund_company_agreement" model="incentive.refund.policy">
+            <field name="name">Company-initiated -- by agreement</field>
+            <field name="sequence">50</field>
+            <field name="stock_type">any</field>
+            <field name="is_wip" eval="True"/>
+            <field name="payment_status">any</field>
+            <field name="initiator">company</field>
+            <field name="by_agreement" eval="True"/>
+            <field name="note">Percentage entered manually on the credit note.</field>
+        </record>
+
+    </data>
+</odoo>

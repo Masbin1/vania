@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_incentive_designation_tree" model="ir.ui.view">
+        <field name="name">incentive.designation.tree</field>
+        <field name="model">incentive.designation</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="fte_branch"/>
+                <field name="fte_individual"/>
+                <field name="branch_incentive_eligible" widget="boolean_toggle"/>
+                <field name="individual_incentive_eligible" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_incentive_designation" model="ir.actions.act_window">
+        <field name="name">FTE Designations</field>
+        <field name="res_model">incentive.designation</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

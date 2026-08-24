@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_incentive_branch_target_tree" model="ir.ui.view">
+        <field name="name">incentive.branch.target.tree</field>
+        <field name="model">incentive.branch.target</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" sample="1"
+                  decoration-muted="state == 'locked'"
+                  decoration-success="state == 'approved'"
+                  decoration-warning="needs_recascade">
+                <field name="period_id" readonly="state != 'draft'"/>
+                <field name="branch_id" readonly="state != 'draft'"/>
+                <field name="business_type" readonly="state != 'draft'"/>
+                <field name="amount" sum="Base Target" readonly="state != 'draft'"/>
+                <field name="carry_forward_amount" sum="Carry-Forward" optional="show"/>
+                <field name="amount_total" sum="Total Target"/>
+                <field name="payout_total" sum="Payout" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'calculated'"
+                       decoration-success="state == 'approved'"
+                       decoration-muted="state == 'locked'"/>
+                <field name="needs_recascade" string="Re-cascade" optional="show"
+                       widget="boolean_toggle" readonly="1"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_incentive_branch_target_form" model="ir.ui.view">
+        <field name="name">incentive.branch.target.form</field>
+        <field name="model">incentive.branch.target</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_calculate" type="object" string="Calculate"
+                            class="btn-primary"
+                            invisible="state not in ('draft', 'calculated')"/>
+                    <button name="action_approve" type="object" string="Approve"
+                            class="btn-primary" invisible="state != 'calculated'"/>
+                    <button name="action_lock" type="object" string="Lock Branch"
+                            class="btn-danger" invisible="state != 'approved'"
+                            confirm="Locking freezes every payout figure for this branch. This cannot be undone. Continue?"/>
+                    <button name="action_reset_to_draft" type="object"
+                            string="Reset to Draft"
+                            invisible="state not in ('calculated', 'approved')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,calculated,approved,locked"/>
+                </header>
+                <div class="alert alert-warning" role="alert"
+                     invisible="not needs_recascade">
+                    <strong>The team changed since these targets were cascaded.</strong>
+                    <field name="recascade_reason" class="d-block"/>
+                    Calculate is blocked until the target cascade is re-run --
+                    payouts are weighted by target and working days, so
+                    calculating now would pay against a team that no longer
+                    exists.
+                </div>
+                <sheet>
+                    <widget name="web_ribbon" title="Locked" bg_color="text-bg-danger"
+                            invisible="state != 'locked'"/>
+                    <field name="needs_recascade" invisible="1"/>
+                    <div class="oe_title">
+                        <h1><field name="branch_id" readonly="state != 'draft'"/></h1>
+                        <h3><field name="period_id" readonly="state != 'draft'"/></h3>
+                    </div>
+                    <group>
+                        <group string="Rolling Forecast">
+                            <field name="business_type" readonly="state != 'draft'"/>
+                            <field name="amount" readonly="state != 'draft'"/>
+                            <field name="carry_forward_amount"/>
+                            <field name="amount_total"
+                                   class="oe_subtotal_footer_separator"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Result">
+                            <field name="payout_total"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_incentive_branch_target_search" model="ir.ui.view">
+        <field name="name">incentive.branch.target.search</field>
+        <field name="model">incentive.branch.target</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="branch_id"/>
+                <field name="period_id"/>
+                <filter name="f_open" string="Not Locked"
+                        domain="[('state','!=','locked')]"/>
+                <filter name="f_approved" string="Approved"
+                        domain="[('state','=','approved')]"/>
+                <group>
+                    <filter name="g_period" string="Period" context="{'group_by':'period_id'}"/>
+                    <filter name="g_branch" string="Branch" context="{'group_by':'branch_id'}"/>
+                    <filter name="g_state" string="Status" context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_incentive_branch_target" model="ir.actions.act_window">
+        <field name="name">Branch Targets</field>
+        <field name="res_model">incentive.branch.target</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_incentive_branch_target_search"/>
+    </record>
+</odoo>

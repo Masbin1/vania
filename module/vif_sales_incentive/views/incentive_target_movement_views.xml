@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_incentive_target_movement_tree" model="ir.ui.view">
+        <field name="name">incentive.target.movement.tree</field>
+        <field name="model">incentive.target.movement</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="date_effective"/>
+                <field name="period_id"/>
+                <field name="reason"/>
+                <field name="from_employee_id"/>
+                <field name="to_employee_id"/>
+                <field name="target_type"/>
+                <field name="fte_share"/>
+                <field name="amount" sum="Total"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="target_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_incentive_target_movement_form" model="ir.ui.view">
+        <field name="name">incentive.target.movement.form</field>
+        <field name="model">incentive.target.movement</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_apply" type="object" string="Apply to Target"
+                            class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="period_id"/>
+                            <field name="reason"/>
+                            <field name="date_effective"/>
+                        </group>
+                        <group>
+                            <field name="from_employee_id"/>
+                            <field name="to_employee_id"/>
+                            <field name="target_type"/>
+                            <field name="fte_share"/>
+                            <field name="amount"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="target_id" readonly="1"/>
+                        <field name="note"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_incentive_target_movement" model="ir.actions.act_window">
+        <field name="name">Target Movements</field>
+        <field name="res_model">incentive.target.movement</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

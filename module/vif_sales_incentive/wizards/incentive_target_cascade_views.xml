@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_incentive_target_cascade_form" model="ir.ui.view">
+        <field name="name">incentive.target.cascade.form</field>
+        <field name="model">incentive.target.cascade</field>
+        <field name="arch" type="xml">
+            <form string="Cascade Branch Target">
+                <group>
+                    <group>
+                        <field name="period_id"/>
+                        <field name="branch_ids" widget="many2many_tags"
+                               options="{'no_create': True}"/>
+                        <field name="business_type"/>
+                        <field name="scope"/>
+                    </group>
+                    <group>
+                        <field name="carry_forward_total"/>
+                        <field name="currency_id" invisible="1"/>
+                        <field name="redistribute_vacant"/>
+                        <field name="overwrite_existing"/>
+                    </group>
+                </group>
+                <div class="alert alert-info" role="alert">
+                    Each branch uses its own figure from
+                    <b>Branch Targets</b> for this period. Enter them there first.
+                </div>
+                <field name="preview_line_ids" readonly="1">
+                    <list default_group_by="branch_id">
+                        <field name="branch_id" column_invisible="1"/>
+                        <field name="employee_id"/>
+                        <field name="designation_id"/>
+                        <field name="fte"/>
+                        <field name="proration"/>
+                        <field name="base_amount" sum="Base"/>
+                        <field name="carry_forward_amount" sum="Carry-Forward"/>
+                        <field name="incentive_amount" sum="Total Incentive"/>
+                        <field name="bonus_amount" sum="Bonus"/>
+                        <field name="currency_id" column_invisible="1"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_preview" type="object" string="Preview"
+                            class="btn-secondary"/>
+                    <button name="action_apply" type="object" string="Apply"
+                            class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_incentive_target_cascade" model="ir.actions.act_window">
+        <field name="name">Cascade Branch Target</field>
+        <field name="res_model">incentive.target.cascade</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

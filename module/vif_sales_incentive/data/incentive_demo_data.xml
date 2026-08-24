@@ -1,0 +1,838 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ================================================================
+         DEMO DATA - sample sales team + 2H 2025 (Jul-Dec) targets for UAT.
+         Loaded only with the demo flag (manifest `demo` key), never on a
+         production install. Replace with real HR data before go-live.
+
+         NOTE: employees intentionally have NO user_id / related user, so
+         invoices will not auto-link until you set "Related User" on each.
+         ================================================================ -->
+    <data noupdate="1">
+
+        <!-- ================= Sales team (hr.employee) ================= -->
+
+        <record id="demo_emp_arief" model="hr.employee">
+            <field name="name">Arief Setiawan</field>
+            <field name="incentive_branch_id" ref="branch_jkt"/>
+            <field name="incentive_business_type">b2b</field>
+            <field name="incentive_designation_id" ref="designation_lead"/>
+        </record>
+
+        <record id="demo_emp_budi" model="hr.employee">
+            <field name="name">Budi Santoso</field>
+            <field name="incentive_branch_id" ref="branch_jkt"/>
+            <field name="incentive_business_type">b2b</field>
+            <field name="incentive_designation_id" ref="designation_team"/>
+        </record>
+
+        <record id="demo_emp_citra" model="hr.employee">
+            <field name="name">Citra Lestari</field>
+            <field name="incentive_branch_id" ref="branch_jkt"/>
+            <field name="incentive_business_type">b2b</field>
+            <field name="incentive_designation_id" ref="designation_team"/>
+        </record>
+
+        <record id="demo_emp_dina" model="hr.employee">
+            <field name="name">Dina Marlina</field>
+            <field name="incentive_branch_id" ref="branch_jkt"/>
+            <field name="incentive_business_type">b2c</field>
+            <field name="incentive_designation_id" ref="designation_lead"/>
+        </record>
+
+        <record id="demo_emp_eko" model="hr.employee">
+            <field name="name">Eko Prasetyo</field>
+            <field name="incentive_branch_id" ref="branch_jkt"/>
+            <field name="incentive_business_type">b2c</field>
+            <field name="incentive_designation_id" ref="designation_team"/>
+        </record>
+
+        <record id="demo_emp_fitri" model="hr.employee">
+            <field name="name">Fitri Handayani</field>
+            <field name="incentive_branch_id" ref="branch_jkt"/>
+            <field name="incentive_business_type">b2c</field>
+            <field name="incentive_designation_id" ref="designation_support"/>
+        </record>
+
+        <record id="demo_emp_gilang" model="hr.employee">
+            <field name="name">Gilang Ramadhan</field>
+            <field name="incentive_branch_id" ref="branch_bdg"/>
+            <field name="incentive_business_type">b2b</field>
+            <field name="incentive_designation_id" ref="designation_team"/>
+        </record>
+
+        <record id="demo_emp_hana" model="hr.employee">
+            <field name="name">Hana Nurjanah</field>
+            <field name="incentive_branch_id" ref="branch_bdg"/>
+            <field name="incentive_business_type">b2b</field>
+            <field name="incentive_designation_id" ref="designation_team"/>
+        </record>
+
+        <record id="demo_emp_indra" model="hr.employee">
+            <field name="name">Indra Wijaya</field>
+            <field name="incentive_branch_id" ref="branch_sby"/>
+            <field name="incentive_business_type">b2b</field>
+            <field name="incentive_designation_id" ref="designation_lead"/>
+        </record>
+
+        <record id="demo_emp_joko" model="hr.employee">
+            <field name="name">Joko Susilo</field>
+            <field name="incentive_branch_id" ref="branch_sby"/>
+            <field name="incentive_business_type">b2b</field>
+            <field name="incentive_designation_id" ref="designation_team"/>
+        </record>
+
+        <record id="demo_emp_kadek" model="hr.employee">
+            <field name="name">Kadek Ariawan</field>
+            <field name="incentive_branch_id" ref="branch_bli"/>
+            <field name="incentive_business_type">b2c</field>
+            <field name="incentive_designation_id" ref="designation_team"/>
+        </record>
+
+        <record id="demo_emp_lukman" model="hr.employee">
+            <field name="name">Lukman Hakim</field>
+            <field name="incentive_branch_id" ref="branch_mdn"/>
+            <field name="incentive_business_type">b2b</field>
+            <field name="incentive_designation_id" ref="designation_team"/>
+        </record>
+
+        <!-- Edge cases: vacant slot / resigned / new hire -->
+        <record id="demo_emp_vacant_sby" model="hr.employee">
+            <field name="name">Vacant - SBY B2B Team</field>
+            <field name="is_vacant_slot" eval="True"/>
+            <field name="incentive_branch_id" ref="branch_sby"/>
+            <field name="incentive_business_type">b2b</field>
+            <field name="incentive_designation_id" ref="designation_team"/>
+        </record>
+        <record id="demo_emp_rina" model="hr.employee">
+            <field name="name">Rina Kartika</field>
+            <field name="incentive_branch_id" ref="branch_jkt"/>
+            <field name="incentive_business_type">b2b</field>
+            <field name="incentive_designation_id" ref="designation_team"/>
+            <field name="incentive_date_end">2025-07-15</field>
+        </record>
+        <record id="demo_emp_siti" model="hr.employee">
+            <field name="name">Siti Rahma</field>
+            <field name="incentive_branch_id" ref="branch_jkt"/>
+            <field name="incentive_business_type">b2b</field>
+            <field name="incentive_designation_id" ref="designation_team"/>
+            <field name="incentive_date_start">2025-08-18</field>
+        </record>
+
+        <!-- ================= Targets - 2H 2025 =================
+             Incentive bucket for every active salesperson each month
+             (Support & vacant slot = no individual target).
+             Dina carries a recurring bonus bucket to demo the mixed
+             scenario. Rina resigns 15 Jul (July only). Siti joins
+             18 Aug (Aug-Dec, August prorated). -->
+
+        <record id="demo_target_arief_2025_07" model="incentive.target">
+            <field name="period_id" ref="period_2025_07"/>
+            <field name="employee_id" ref="demo_emp_arief"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">200000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_budi_2025_07" model="incentive.target">
+            <field name="period_id" ref="period_2025_07"/>
+            <field name="employee_id" ref="demo_emp_budi"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">100000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_citra_2025_07" model="incentive.target">
+            <field name="period_id" ref="period_2025_07"/>
+            <field name="employee_id" ref="demo_emp_citra"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">100000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_dina_2025_07" model="incentive.target">
+            <field name="period_id" ref="period_2025_07"/>
+            <field name="employee_id" ref="demo_emp_dina"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">150000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_eko_2025_07" model="incentive.target">
+            <field name="period_id" ref="period_2025_07"/>
+            <field name="employee_id" ref="demo_emp_eko"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">80000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_gilang_2025_07" model="incentive.target">
+            <field name="period_id" ref="period_2025_07"/>
+            <field name="employee_id" ref="demo_emp_gilang"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">120000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_hana_2025_07" model="incentive.target">
+            <field name="period_id" ref="period_2025_07"/>
+            <field name="employee_id" ref="demo_emp_hana"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">120000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_indra_2025_07" model="incentive.target">
+            <field name="period_id" ref="period_2025_07"/>
+            <field name="employee_id" ref="demo_emp_indra"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">180000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_joko_2025_07" model="incentive.target">
+            <field name="period_id" ref="period_2025_07"/>
+            <field name="employee_id" ref="demo_emp_joko"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">90000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_kadek_2025_07" model="incentive.target">
+            <field name="period_id" ref="period_2025_07"/>
+            <field name="employee_id" ref="demo_emp_kadek"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">70000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_lukman_2025_07" model="incentive.target">
+            <field name="period_id" ref="period_2025_07"/>
+            <field name="employee_id" ref="demo_emp_lukman"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">85000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_rina_2025_07" model="incentive.target">
+            <field name="period_id" ref="period_2025_07"/>
+            <field name="employee_id" ref="demo_emp_rina"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">100000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+            <field name="proration_ratio">0.4839</field>
+            <field name="date_effective_start">2025-07-01</field>
+            <field name="date_effective_end">2025-07-15</field>
+        </record>
+
+        <record id="demo_target_dina_bonus_2025_07" model="incentive.target">
+            <field name="period_id" ref="period_2025_07"/>
+            <field name="employee_id" ref="demo_emp_dina"/>
+            <field name="target_type">bonus</field>
+            <field name="amount">50000000</field>
+            <field name="source">redistribution</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_arief_2025_08" model="incentive.target">
+            <field name="period_id" ref="period_2025_08"/>
+            <field name="employee_id" ref="demo_emp_arief"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">200000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_budi_2025_08" model="incentive.target">
+            <field name="period_id" ref="period_2025_08"/>
+            <field name="employee_id" ref="demo_emp_budi"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">100000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_citra_2025_08" model="incentive.target">
+            <field name="period_id" ref="period_2025_08"/>
+            <field name="employee_id" ref="demo_emp_citra"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">100000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_dina_2025_08" model="incentive.target">
+            <field name="period_id" ref="period_2025_08"/>
+            <field name="employee_id" ref="demo_emp_dina"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">150000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_eko_2025_08" model="incentive.target">
+            <field name="period_id" ref="period_2025_08"/>
+            <field name="employee_id" ref="demo_emp_eko"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">80000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_gilang_2025_08" model="incentive.target">
+            <field name="period_id" ref="period_2025_08"/>
+            <field name="employee_id" ref="demo_emp_gilang"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">120000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_hana_2025_08" model="incentive.target">
+            <field name="period_id" ref="period_2025_08"/>
+            <field name="employee_id" ref="demo_emp_hana"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">120000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_indra_2025_08" model="incentive.target">
+            <field name="period_id" ref="period_2025_08"/>
+            <field name="employee_id" ref="demo_emp_indra"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">180000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_joko_2025_08" model="incentive.target">
+            <field name="period_id" ref="period_2025_08"/>
+            <field name="employee_id" ref="demo_emp_joko"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">90000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_kadek_2025_08" model="incentive.target">
+            <field name="period_id" ref="period_2025_08"/>
+            <field name="employee_id" ref="demo_emp_kadek"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">70000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_lukman_2025_08" model="incentive.target">
+            <field name="period_id" ref="period_2025_08"/>
+            <field name="employee_id" ref="demo_emp_lukman"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">85000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_siti_2025_08" model="incentive.target">
+            <field name="period_id" ref="period_2025_08"/>
+            <field name="employee_id" ref="demo_emp_siti"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">100000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+            <field name="proration_ratio">0.4516</field>
+            <field name="date_effective_start">2025-08-18</field>
+            <field name="date_effective_end">2025-08-31</field>
+        </record>
+
+        <record id="demo_target_dina_bonus_2025_08" model="incentive.target">
+            <field name="period_id" ref="period_2025_08"/>
+            <field name="employee_id" ref="demo_emp_dina"/>
+            <field name="target_type">bonus</field>
+            <field name="amount">50000000</field>
+            <field name="source">redistribution</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_arief_2025_09" model="incentive.target">
+            <field name="period_id" ref="period_2025_09"/>
+            <field name="employee_id" ref="demo_emp_arief"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">200000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_budi_2025_09" model="incentive.target">
+            <field name="period_id" ref="period_2025_09"/>
+            <field name="employee_id" ref="demo_emp_budi"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">100000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_citra_2025_09" model="incentive.target">
+            <field name="period_id" ref="period_2025_09"/>
+            <field name="employee_id" ref="demo_emp_citra"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">100000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_dina_2025_09" model="incentive.target">
+            <field name="period_id" ref="period_2025_09"/>
+            <field name="employee_id" ref="demo_emp_dina"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">150000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_eko_2025_09" model="incentive.target">
+            <field name="period_id" ref="period_2025_09"/>
+            <field name="employee_id" ref="demo_emp_eko"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">80000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_gilang_2025_09" model="incentive.target">
+            <field name="period_id" ref="period_2025_09"/>
+            <field name="employee_id" ref="demo_emp_gilang"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">120000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_hana_2025_09" model="incentive.target">
+            <field name="period_id" ref="period_2025_09"/>
+            <field name="employee_id" ref="demo_emp_hana"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">120000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_indra_2025_09" model="incentive.target">
+            <field name="period_id" ref="period_2025_09"/>
+            <field name="employee_id" ref="demo_emp_indra"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">180000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_joko_2025_09" model="incentive.target">
+            <field name="period_id" ref="period_2025_09"/>
+            <field name="employee_id" ref="demo_emp_joko"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">90000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_kadek_2025_09" model="incentive.target">
+            <field name="period_id" ref="period_2025_09"/>
+            <field name="employee_id" ref="demo_emp_kadek"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">70000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_lukman_2025_09" model="incentive.target">
+            <field name="period_id" ref="period_2025_09"/>
+            <field name="employee_id" ref="demo_emp_lukman"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">85000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_siti_2025_09" model="incentive.target">
+            <field name="period_id" ref="period_2025_09"/>
+            <field name="employee_id" ref="demo_emp_siti"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">100000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_dina_bonus_2025_09" model="incentive.target">
+            <field name="period_id" ref="period_2025_09"/>
+            <field name="employee_id" ref="demo_emp_dina"/>
+            <field name="target_type">bonus</field>
+            <field name="amount">50000000</field>
+            <field name="source">redistribution</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_arief_2025_10" model="incentive.target">
+            <field name="period_id" ref="period_2025_10"/>
+            <field name="employee_id" ref="demo_emp_arief"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">200000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_budi_2025_10" model="incentive.target">
+            <field name="period_id" ref="period_2025_10"/>
+            <field name="employee_id" ref="demo_emp_budi"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">100000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_citra_2025_10" model="incentive.target">
+            <field name="period_id" ref="period_2025_10"/>
+            <field name="employee_id" ref="demo_emp_citra"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">100000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_dina_2025_10" model="incentive.target">
+            <field name="period_id" ref="period_2025_10"/>
+            <field name="employee_id" ref="demo_emp_dina"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">150000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_eko_2025_10" model="incentive.target">
+            <field name="period_id" ref="period_2025_10"/>
+            <field name="employee_id" ref="demo_emp_eko"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">80000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_gilang_2025_10" model="incentive.target">
+            <field name="period_id" ref="period_2025_10"/>
+            <field name="employee_id" ref="demo_emp_gilang"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">120000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_hana_2025_10" model="incentive.target">
+            <field name="period_id" ref="period_2025_10"/>
+            <field name="employee_id" ref="demo_emp_hana"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">120000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_indra_2025_10" model="incentive.target">
+            <field name="period_id" ref="period_2025_10"/>
+            <field name="employee_id" ref="demo_emp_indra"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">180000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_joko_2025_10" model="incentive.target">
+            <field name="period_id" ref="period_2025_10"/>
+            <field name="employee_id" ref="demo_emp_joko"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">90000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_kadek_2025_10" model="incentive.target">
+            <field name="period_id" ref="period_2025_10"/>
+            <field name="employee_id" ref="demo_emp_kadek"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">70000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_lukman_2025_10" model="incentive.target">
+            <field name="period_id" ref="period_2025_10"/>
+            <field name="employee_id" ref="demo_emp_lukman"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">85000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_siti_2025_10" model="incentive.target">
+            <field name="period_id" ref="period_2025_10"/>
+            <field name="employee_id" ref="demo_emp_siti"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">100000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_dina_bonus_2025_10" model="incentive.target">
+            <field name="period_id" ref="period_2025_10"/>
+            <field name="employee_id" ref="demo_emp_dina"/>
+            <field name="target_type">bonus</field>
+            <field name="amount">50000000</field>
+            <field name="source">redistribution</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_arief_2025_11" model="incentive.target">
+            <field name="period_id" ref="period_2025_11"/>
+            <field name="employee_id" ref="demo_emp_arief"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">200000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_budi_2025_11" model="incentive.target">
+            <field name="period_id" ref="period_2025_11"/>
+            <field name="employee_id" ref="demo_emp_budi"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">100000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_citra_2025_11" model="incentive.target">
+            <field name="period_id" ref="period_2025_11"/>
+            <field name="employee_id" ref="demo_emp_citra"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">100000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_dina_2025_11" model="incentive.target">
+            <field name="period_id" ref="period_2025_11"/>
+            <field name="employee_id" ref="demo_emp_dina"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">150000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_eko_2025_11" model="incentive.target">
+            <field name="period_id" ref="period_2025_11"/>
+            <field name="employee_id" ref="demo_emp_eko"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">80000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_gilang_2025_11" model="incentive.target">
+            <field name="period_id" ref="period_2025_11"/>
+            <field name="employee_id" ref="demo_emp_gilang"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">120000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_hana_2025_11" model="incentive.target">
+            <field name="period_id" ref="period_2025_11"/>
+            <field name="employee_id" ref="demo_emp_hana"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">120000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_indra_2025_11" model="incentive.target">
+            <field name="period_id" ref="period_2025_11"/>
+            <field name="employee_id" ref="demo_emp_indra"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">180000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_joko_2025_11" model="incentive.target">
+            <field name="period_id" ref="period_2025_11"/>
+            <field name="employee_id" ref="demo_emp_joko"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">90000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_kadek_2025_11" model="incentive.target">
+            <field name="period_id" ref="period_2025_11"/>
+            <field name="employee_id" ref="demo_emp_kadek"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">70000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_lukman_2025_11" model="incentive.target">
+            <field name="period_id" ref="period_2025_11"/>
+            <field name="employee_id" ref="demo_emp_lukman"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">85000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_siti_2025_11" model="incentive.target">
+            <field name="period_id" ref="period_2025_11"/>
+            <field name="employee_id" ref="demo_emp_siti"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">100000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_dina_bonus_2025_11" model="incentive.target">
+            <field name="period_id" ref="period_2025_11"/>
+            <field name="employee_id" ref="demo_emp_dina"/>
+            <field name="target_type">bonus</field>
+            <field name="amount">50000000</field>
+            <field name="source">redistribution</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_arief_2025_12" model="incentive.target">
+            <field name="period_id" ref="period_2025_12"/>
+            <field name="employee_id" ref="demo_emp_arief"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">200000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_budi_2025_12" model="incentive.target">
+            <field name="period_id" ref="period_2025_12"/>
+            <field name="employee_id" ref="demo_emp_budi"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">100000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_citra_2025_12" model="incentive.target">
+            <field name="period_id" ref="period_2025_12"/>
+            <field name="employee_id" ref="demo_emp_citra"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">100000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_dina_2025_12" model="incentive.target">
+            <field name="period_id" ref="period_2025_12"/>
+            <field name="employee_id" ref="demo_emp_dina"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">150000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_eko_2025_12" model="incentive.target">
+            <field name="period_id" ref="period_2025_12"/>
+            <field name="employee_id" ref="demo_emp_eko"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">80000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_gilang_2025_12" model="incentive.target">
+            <field name="period_id" ref="period_2025_12"/>
+            <field name="employee_id" ref="demo_emp_gilang"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">120000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_hana_2025_12" model="incentive.target">
+            <field name="period_id" ref="period_2025_12"/>
+            <field name="employee_id" ref="demo_emp_hana"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">120000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_indra_2025_12" model="incentive.target">
+            <field name="period_id" ref="period_2025_12"/>
+            <field name="employee_id" ref="demo_emp_indra"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">180000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+        <record id="demo_target_joko_2025_12" model="incentive.target">
+            <field name="period_id" ref="period_2025_12"/>
+            <field name="employee_id" ref="demo_emp_joko"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">90000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_kadek_2025_12" model="incentive.target">
+            <field name="period_id" ref="period_2025_12"/>
+            <field name="employee_id" ref="demo_emp_kadek"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">70000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_lukman_2025_12" model="incentive.target">
+            <field name="period_id" ref="period_2025_12"/>
+            <field name="employee_id" ref="demo_emp_lukman"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">85000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_siti_2025_12" model="incentive.target">
+            <field name="period_id" ref="period_2025_12"/>
+            <field name="employee_id" ref="demo_emp_siti"/>
+            <field name="target_type">incentive</field>
+            <field name="amount">100000000</field>
+            <field name="source">manual</field>
+            <field name="fte_used">1.0</field>
+        </record>
+
+        <record id="demo_target_dina_bonus_2025_12" model="incentive.target">
+            <field name="period_id" ref="period_2025_12"/>
+            <field name="employee_id" ref="demo_emp_dina"/>
+            <field name="target_type">bonus</field>
+            <field name="amount">50000000</field>
+            <field name="source">redistribution</field>
+            <field name="fte_used">1.5</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_incentive_period_tree" model="ir.ui.view">
+        <field name="name">incentive.period.tree</field>
+        <field name="model">incentive.period</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state == 'locked'" decoration-success="state == 'approved'">
+                <field name="name"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="rule_id"/>
+                <field name="target_count" string="Targets"/>
+                <field name="payout_count" string="Payouts"/>
+                <field name="total_payout" widget="monetary"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'calculated'"
+                       decoration-success="state == 'approved'"
+                       decoration-muted="state == 'locked'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_incentive_period_form" model="ir.ui.view">
+        <field name="name">incentive.period.form</field>
+        <field name="model">incentive.period</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_open" type="object" string="Open"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_calculate" type="object" string="Calculate"
+                            class="btn-primary"
+                            invisible="state not in ('open', 'calculated')"/>
+                    <button name="action_approve" type="object" string="Approve"
+                            class="btn-primary" invisible="state != 'calculated'"/>
+                    <button name="action_lock" type="object" string="Lock Period"
+                            class="btn-danger" invisible="state != 'approved'"
+                            confirm="Locking freezes every payout figure in this period. This cannot be undone. Continue?"/>
+                    <button name="action_reset_to_open" type="object" string="Reset to Open"
+                            invisible="state not in ('calculated', 'approved')"/>
+                    <button name="action_generate_next" type="object"
+                            string="Create Next Month" invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,open,calculated,approved,locked"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_targets" type="object"
+                                class="oe_stat_button" icon="fa-crosshairs">
+                            <field name="target_count" widget="statinfo" string="Targets"/>
+                        </button>
+                        <button name="action_view_transactions" type="object"
+                                class="oe_stat_button" icon="fa-list">
+                            <field name="transaction_count" widget="statinfo" string="Transactions"/>
+                        </button>
+                        <button name="action_view_payouts" type="object"
+                                class="oe_stat_button" icon="fa-money">
+                            <field name="payout_count" widget="statinfo" string="Payouts"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Locked" bg_color="text-bg-danger"
+                            invisible="state != 'locked'"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Jul 2025"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="date_start" readonly="state != 'draft'"/>
+                            <field name="date_end" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="rule_id" readonly="state not in ('draft', 'open')"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Summary">
+                        <group>
+                            <field name="total_target" widget="monetary"/>
+                        </group>
+                        <group>
+                            <field name="total_payout" widget="monetary"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Branches" name="branches">
+                            <field name="branch_target_ids" nolabel="1"
+                                   context="{'default_period_id': id}">
+                                <list editable="bottom"
+                                      decoration-muted="state == 'locked'"
+                                      decoration-success="state == 'approved'">
+                                    <field name="branch_id" readonly="state != 'draft'"/>
+                                    <field name="business_type" readonly="state != 'draft'"/>
+                                    <field name="amount" sum="Base Target"
+                                           readonly="state != 'draft'"/>
+                                    <field name="carry_forward_amount" sum="Carry-Forward"/>
+                                    <field name="amount_total" sum="Total Target"/>
+                                    <field name="payout_total" sum="Payout"/>
+                                    <field name="state" widget="badge"
+                                           decoration-info="state == 'calculated'"
+                                           decoration-success="state == 'approved'"
+                                           decoration-muted="state == 'locked'"/>
+                                    <button name="action_calculate" type="object"
+                                            string="Calculate" icon="fa-calculator"
+                                            invisible="state not in ('draft', 'calculated')"/>
+                                    <button name="action_approve" type="object"
+                                            string="Approve" icon="fa-check"
+                                            invisible="state != 'calculated'"/>
+                                    <button name="action_lock" type="object"
+                                            string="Lock" icon="fa-lock"
+                                            invisible="state != 'approved'"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_incentive_period" model="ir.actions.act_window">
+        <field name="name">Incentive Periods</field>
+        <field name="res_model">incentive.period</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

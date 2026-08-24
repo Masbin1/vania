@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_incentive_target_tree" model="ir.ui.view">
+        <field name="name">incentive.target.tree</field>
+        <field name="model">incentive.target</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" sample="1">
+                <field name="period_id"/>
+                <field name="employee_id"/>
+                <field name="branch_id"/>
+                <field name="business_type"/>
+                <field name="designation_id"/>
+                <field name="target_type"/>
+                <field name="amount" sum="Total Target"/>
+                <field name="shortfall_amount" sum="Shortfall" optional="show"/>
+                <field name="carry_forward_amount" sum="Carry-Forward" optional="show"/>
+                <field name="months_remaining" optional="show"/>
+                <field name="fte_used" optional="show"/>
+                <field name="proration_ratio" optional="show"/>
+                <field name="source"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_incentive_target_search" model="ir.ui.view">
+        <field name="name">incentive.target.search</field>
+        <field name="model">incentive.target</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id"/>
+                <field name="period_id"/>
+                <field name="branch_id"/>
+                <filter name="f_incentive" string="Incentive-Based"
+                        domain="[('target_type','=','incentive')]"/>
+                <filter name="f_bonus" string="Bonus-Based"
+                        domain="[('target_type','=','bonus')]"/>
+                <separator/>
+                <filter name="f_redistributed" string="Redistributed"
+                        domain="[('source','=','redistribution')]"/>
+                <group>
+                    <filter name="g_period" string="Period" context="{'group_by':'period_id'}"/>
+                    <filter name="g_branch" string="Branch" context="{'group_by':'branch_id'}"/>
+                    <filter name="g_type" string="Bucket" context="{'group_by':'target_type'}"/>
+                    <filter name="g_employee" string="Salesperson" context="{'group_by':'employee_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_incentive_target" model="ir.actions.act_window">
+        <field name="name">Incentive Targets</field>
+        <field name="res_model">incentive.target</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_incentive_target_search"/>
+    </record>
+</odoo>

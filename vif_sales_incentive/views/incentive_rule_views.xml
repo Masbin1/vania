@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_incentive_rule_form" model="ir.ui.view">
+        <field name="name">incentive.rule.form</field>
+        <field name="model">incentive.rule</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Incentive Scheme 2H 2025"/></h1>
+                    </div>
+                    <group>
+                        <group string="Validity">
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="active" widget="boolean_toggle"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Rates">
+                            <field name="base_rate" widget="percentage"/>
+                            <field name="bonus_rate" widget="percentage"/>
+                            <field name="max_discount"/>
+                        </group>
+                    </group>
+                    <group string="Mixed Scenario (S18)">
+                        <field name="cap_tier_in_mixed"/>
+                        <field name="mixed_cap_tier_level"
+                               invisible="not cap_tier_in_mixed"/>
+                    </group>
+                    <notebook>
+                        <page string="Tiers">
+                            <field name="tier_ids">
+                                <list editable="bottom">
+                                    <field name="level"/>
+                                    <field name="name"/>
+                                    <field name="achievement_min" widget="percentage"/>
+                                    <field name="achievement_max" widget="percentage"/>
+                                    <field name="is_top_tier" widget="boolean_toggle"/>
+                                    <field name="allocation" widget="percentage"/>
+                                    <field name="payout_rate" widget="percentage"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                            <div class="text-muted mt-2">
+                                A tier matches when <b>min &lt;= achievement &lt; max</b>.
+                                Tick "Open-ended" on the highest tier.
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_incentive_rule_tree" model="ir.ui.view">
+        <field name="name">incentive.rule.tree</field>
+        <field name="model">incentive.rule</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="base_rate" widget="percentage"/>
+                <field name="bonus_rate" widget="percentage"/>
+                <field name="max_discount"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_incentive_rule" model="ir.actions.act_window">
+        <field name="name">Incentive Rules</field>
+        <field name="res_model">incentive.rule</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

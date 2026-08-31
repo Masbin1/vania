@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        A4 printout for a POS order, laid out like the customer invoice report.
+        Works for every order, invoiced or not: it reads pos.order directly
+        instead of going through account.move (a walk-in order has none).
+
+        No Python: with no report.<report_name> AbstractModel registered, Odoo
+        injects `docs` (the recordset) itself — see ir_actions_report.py,
+        _get_rendering_context().
+    -->
+    <template id="report_pos_order_a4_document">
+        <t>
+            <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang or o.user_id.lang)"/>
+            <t t-set="address">
+                <address t-if="o.partner_id" class="mb-0" t-field="o.partner_id"
+                         t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
+            </t>
+
+            <div class="page mb-4">
+                <t t-set="layout_document_title">
+                    <span>Receipt</span>
+                    <span t-field="o.pos_reference">Order 00001-001-0001</span>
+                </t>
+                <!-- address block + title normally come from external_layout; pulled
+                     in explicitly here because basic_layout renders neither. -->
+                <t t-call="web.address_layout"/>
+                <h2 t-out="layout_document_title"/>
+
+                <div id="informations" class="row mb-4">
+                    <div class="col" name="order_date">
+                        <strong>Date</strong>
+                        <div t-field="o.date_order" t-options='{"widget": "date"}'>2026-08-28</div>
+                    </div>
+                    <div class="col" t-if="o.tracking_number" name="tracking_number">
+                        <strong>Order Number</strong>
+                        <div t-field="o.tracking_number"/>
+                    </div>
+                    <div class="col" t-if="o.config_id" name="pos_config">
+                        <strong>Point of Sale</strong>
+                        <div t-field="o.config_id.name"/>
+                    </div>
+                    <div class="col" t-if="o.user_id" name="cashier">
+                        <strong>Cashier</strong>
+                        <div t-field="o.user_id.name"/>
+                    </div>
+                    <div class="col" t-if="o.account_move" name="invoice_ref">
+                        <strong>Invoice</strong>
+                        <div t-field="o.account_move.name"/>
+                    </div>
+                </div>
+
+                <!-- Combo children are printed under their parent, never as top-level rows. -->
+                <t t-set="lines_to_report" t-value="o.lines.filtered(lambda l: not l.combo_parent_id)"/>
+                <t t-set="display_discount" t-value="any(l.discount for l in o.lines)"/>
+                <t t-set="display_taxes" t-value="any(l.tax_ids for l in o.lines)"/>
+
+                <table class="o_has_total_table table o_main_table table-borderless mb-0" name="pos_line_table">
+                    <thead>
+                        <tr>
+                            <th name="th_description" class="text-start"><span>Description</span></th>
+                            <th name="th_quantity" class="text-end"><span>Quantity</span></th>
+                            <th name="th_priceunit" class="text-end text-nowrap"><span>Unit Price</span></th>
+                            <th name="th_discount" t-if="display_discount" class="text-end"><span>Disc.%</span></th>
+                            <th name="th_taxes" t-if="display_taxes" class="text-end"><span>Taxes</span></th>
+                            <th name="th_subtotal" class="text-end"><span>Amount</span></th>
+                        </tr>
+                    </thead>
+                    <tbody class="pos_tbody">
+                        <t t-foreach="lines_to_report" t-as="line">
+                            <tr>
+                                <td name="td_name">
+                                    <span t-out="line.full_product_name or line.product_id.display_name">Product</span>
+                                    <div t-if="line.customer_note" class="text-muted small" t-field="line.customer_note"/>
+                                    <!-- Combo children: description only, their price is in the parent line. -->
+                                    <div t-if="line.combo_line_ids" class="text-muted small">
+                                        <div t-foreach="line.combo_line_ids" t-as="combo_line" t-key="combo_line.id">
+                                            <span t-out="combo_line.full_product_name or combo_line.product_id.display_name"/>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td name="td_quantity" class="text-end">
+                                    <span t-out="line.qty" t-options='{"widget": "float", "decimal_precision": "Product Unit"}'>1.00</span>
+                                    <span t-field="line.product_uom_id.name" groups="uom.group_uom"/>
+                                </td>
+                                <td name="td_priceunit" class="text-end">
+                                    <span t-out="line.price_unit" t-options='{"widget": "float", "decimal_precision": "Product Price"}'>190,000.00</span>
+                                </td>
+                                <td name="td_discount" t-if="display_discount" class="text-end">
+                                    <span t-out="line.discount" t-options='{"widget": "float", "decimal_precision": "Discount"}'>0.00</span>
+                                </td>
+                                <td name="td_taxes" t-if="display_taxes" class="text-end">
+                                    <span t-out="', '.join(t.name for t in line.tax_ids)">Tax 11%</span>
+                                </td>
+                                <td name="td_subtotal" class="text-end o_price_total">
+                                    <span class="text-nowrap" t-out="line.price_subtotal"
+                                          t-options='{"widget": "monetary", "display_currency": o.currency_id}'>180,500.00</span>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+
+                <div class="overflow-hidden">
+                    <!-- col-4, not the portrait col-5: the page is 297mm wide here. -->
+                    <div id="right-elements" class="col-4 mt-4 ms-5 d-inline-block float-end">
+                        <div id="total" class="clearfix row">
+                            <div class="ms-auto">
+                                <table class="o_total_table table table-borderless avoid-page-break-inside">
+                                    <tr class="border-black o_subtotal">
+                                        <td><strong>Untaxed Amount</strong></td>
+                                        <td class="text-end">
+                                            <span t-out="o.amount_total - o.amount_tax"
+                                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'>180,500.00</span>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="o.amount_tax">
+                                        <td>Taxes</td>
+                                        <td class="text-end">
+                                            <span t-field="o.amount_tax">19,855.00</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-black o_total">
+                                        <td><strong>Total</strong></td>
+                                        <td class="text-end">
+                                            <strong><span t-field="o.amount_total">200,355.00</span></strong>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Payments actually taken, per method -->
+                                    <t t-foreach="o.payment_ids" t-as="payment" t-key="payment.id">
+                                        <tr>
+                                            <td>
+                                                <i class="oe_form_field text-end oe_payment_label">
+                                                    Paid using <t t-out="payment.payment_method_id.name">Cash</t>
+                                                </i>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-field="payment.amount">200,355.00</span>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <tr t-if="o.amount_return">
+                                        <td>Change</td>
+                                        <td class="text-end">
+                                            <span t-field="o.amount_return">0.00</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!--
+        web.basic_layout instead of web.external_layout: it drops the company
+        header and the "Page x / y" footer, which external_layout renders.
+        It calls web.html_container itself, so this template must not.
+    -->
+    <template id="report_pos_order_a4">
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="o" t-key="o.id">
+                <t t-call="pos_discount_restrict.report_pos_order_a4_document"/>
+            </t>
+        </t>
+    </template>
+
+    <!--
+        Landscape A4 with no header/footer: margins are small and uniform since
+        basic_layout leaves no header band to reserve space for. header_spacing
+        must stay 0, or wkhtmltopdf pushes the body down for a header that is
+        not there.
+    -->
+    <record id="paperformat_pos_order_a4_landscape" model="report.paperformat">
+        <field name="name">POS Receipt A4 Landscape</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="action_report_pos_order_a4" model="ir.actions.report">
+        <field name="name">POS Receipt (A4)</field>
+        <field name="model">pos.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">pos_discount_restrict.report_pos_order_a4</field>
+        <field name="report_file">pos_discount_restrict.report_pos_order_a4</field>
+        <field name="print_report_name">'POS - %s' % (object.pos_reference or object.name)</field>
+        <field name="paperformat_id" ref="pos_discount_restrict.paperformat_pos_order_a4_landscape"/>
+        <field name="binding_model_id" ref="point_of_sale.model_pos_order"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

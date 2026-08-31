@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_incentive_transaction_tree" model="ir.ui.view">
+        <field name="name">incentive.transaction.tree</field>
+        <field name="model">incentive.transaction</field>
+        <field name="arch" type="xml">
+            <list sample="1"
+                  decoration-muted="not is_discount_eligible"
+                  decoration-info="is_prior_period"
+                  decoration-danger="transaction_type == 'refund'">
+                <field name="move_id"/>
+                <field name="employee_id"/>
+                <field name="branch_id" optional="show"/>
+                <field name="product_id" optional="hide"/>
+                <field name="invoice_date"/>
+                <field name="source_period_id"/>
+                <field name="payment_period_id"/>
+                <field name="payment_date" optional="hide"/>
+                <field name="is_prior_period" optional="show"/>
+                <field name="discount"/>
+                <field name="is_discount_eligible" widget="boolean_toggle"/>
+                <field name="is_payment_eligible" widget="boolean_toggle"/>
+                <field name="bucket"/>
+                <field name="incentive_alloc" optional="show" sum="Incentive Alloc"/>
+                <field name="bonus_alloc" optional="show" sum="Bonus Alloc"/>
+                <field name="base_amount" sum="Base"/>
+                <field name="tier_id"/>
+                <field name="tier_payout_rate" digits="[16,6]"/>
+                <field name="payout_amount" sum="Payout"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_incentive_transaction_form" model="ir.ui.view">
+        <field name="name">incentive.transaction.form</field>
+        <field name="model">incentive.transaction</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_create_reversal" type="object"
+                            string="Create Credit Note / Refund" class="btn-warning"
+                            invisible="state == 'reversed'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="display_ref" readonly="1"/></h1></div>
+                    <group>
+                        <group string="Source">
+                            <field name="move_id"/>
+                            <field name="move_line_id"/>
+                            <field name="employee_id"/>
+                            <field name="partner_id"/>
+                            <field name="transaction_type"/>
+                        </group>
+                        <group string="Period Stamps">
+                            <field name="invoice_date"/>
+                            <field name="source_period_id"/>
+                            <field name="payment_date"/>
+                            <field name="payment_period_id"/>
+                            <field name="is_prior_period"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Eligibility">
+                            <field name="discount"/>
+                            <field name="is_discount_eligible"/>
+                            <field name="is_payment_eligible"/>
+                            <field name="bucket"/>
+                            <field name="incentive_alloc"/>
+                            <field name="bonus_alloc"/>
+                            <field name="eligibility_note"/>
+                        </group>
+                        <group string="Payout (frozen snapshot)">
+                            <field name="base_amount"/>
+                            <field name="tier_id"/>
+                            <field name="tier_payout_rate" digits="[16,6]"/>
+                            <field name="payout_amount"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Adjustment Trail">
+                        <field name="reversal_of_id"/>
+                        <field name="reversal_ids" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_incentive_transaction_search" model="ir.ui.view">
+        <field name="name">incentive.transaction.search</field>
+        <field name="model">incentive.transaction</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id"/>
+                <field name="move_id"/>
+                <field name="source_period_id"/>
+                <field name="payment_period_id"/>
+                <filter name="f_eligible" string="Discount Eligible"
+                        domain="[('is_discount_eligible','=',True)]"/>
+                <filter name="f_excluded" string="Excluded (discount &gt; cap)"
+                        domain="[('is_discount_eligible','=',False)]"/>
+                <separator/>
+                <filter name="f_paid" string="Fully Paid"
+                        domain="[('is_payment_eligible','=',True)]"/>
+                <filter name="f_unpaid" string="Not Fully Paid"
+                        domain="[('is_payment_eligible','=',False)]"/>
+                <separator/>
+                <filter name="f_prior" string="Prior-Period Invoice"
+                        domain="[('is_prior_period','=',True)]"/>
+                <filter name="f_refund" string="Refunds"
+                        domain="[('transaction_type','=','refund')]"/>
+                <group>
+                    <filter name="g_source" string="Source Period"
+                            context="{'group_by':'source_period_id'}"/>
+                    <filter name="g_payment" string="Payment Period"
+                            context="{'group_by':'payment_period_id'}"/>
+                    <filter name="g_employee" string="Salesperson"
+                            context="{'group_by':'employee_id'}"/>
+                    <filter name="g_branch" string="Branch" context="{'group_by':'branch_id'}"/>
+                    <filter name="g_bucket" string="Bucket" context="{'group_by':'bucket'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_incentive_transaction_pivot" model="ir.ui.view">
+        <field name="name">incentive.transaction.pivot</field>
+        <field name="model">incentive.transaction</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="employee_id" type="row"/>
+                <field name="payment_period_id" type="col"/>
+                <field name="base_amount" type="measure"/>
+                <field name="payout_amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_incentive_transaction" model="ir.actions.act_window">
+        <field name="name">Incentive Transactions</field>
+        <field name="res_model">incentive.transaction</field>
+        <field name="view_mode">list,pivot,form</field>
+        <field name="search_view_id" ref="view_incentive_transaction_search"/>
+    </record>
+
+</odoo>

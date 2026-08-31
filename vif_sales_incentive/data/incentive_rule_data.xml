@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="rule_2h_2025" model="incentive.rule">
+            <field name="name">Incentive Scheme 2H 2025</field>
+            <field name="date_from" eval="'2025-07-01'"/>
+            <field name="date_to" eval="'2025-12-31'"/>
+            <field name="base_rate">0.0075</field>
+            <field name="bonus_rate">0.01</field>
+            <field name="max_discount">35.0</field>
+            <field name="cap_tier_in_mixed" eval="True"/>
+            <field name="mixed_cap_tier_level">4</field>
+        </record>
+
+        <!-- NOTE ON THE BOUNDARY.
+             The client's table reads "Tier 0 = <=75%" and "Tier 1 = 75%-84.9%",
+             which overlap at exactly 75%. Their own new-hire use case
+             (30,000,000 / 40,000,000 = 75%) is scored as Tier 1, so the
+             implementation uses  min <= achievement < max  and Tier 0 stops
+             below 75%. Confirm with the client before go-live. -->
+
+        <record id="tier_0" model="incentive.rule.tier">
+            <field name="rule_id" ref="rule_2h_2025"/>
+            <field name="name">Tier 0</field>
+            <field name="level">0</field>
+            <field name="achievement_min">0.0</field>
+            <field name="achievement_max">0.75</field>
+            <field name="allocation">0.0</field>
+            <field name="note">Not eligible</field>
+        </record>
+
+        <record id="tier_1" model="incentive.rule.tier">
+            <field name="rule_id" ref="rule_2h_2025"/>
+            <field name="name">Tier 1</field>
+            <field name="level">1</field>
+            <field name="achievement_min">0.75</field>
+            <field name="achievement_max">0.85</field>
+            <field name="allocation">0.4</field>
+            <field name="note">0.300% of revenue achieved</field>
+        </record>
+
+        <record id="tier_2" model="incentive.rule.tier">
+            <field name="rule_id" ref="rule_2h_2025"/>
+            <field name="name">Tier 2</field>
+            <field name="level">2</field>
+            <field name="achievement_min">0.85</field>
+            <field name="achievement_max">0.90</field>
+            <field name="allocation">0.8</field>
+            <field name="note">0.600% of revenue achieved</field>
+        </record>
+
+        <record id="tier_3" model="incentive.rule.tier">
+            <field name="rule_id" ref="rule_2h_2025"/>
+            <field name="name">Tier 3</field>
+            <field name="level">3</field>
+            <field name="achievement_min">0.90</field>
+            <field name="achievement_max">1.00</field>
+            <field name="allocation">0.9</field>
+            <field name="note">0.675% of revenue achieved</field>
+        </record>
+
+        <record id="tier_4" model="incentive.rule.tier">
+            <field name="rule_id" ref="rule_2h_2025"/>
+            <field name="name">Tier 4</field>
+            <field name="level">4</field>
+            <field name="achievement_min">1.00</field>
+            <field name="achievement_max">1.10</field>
+            <field name="allocation">1.0</field>
+            <field name="note">0.750% of revenue achieved</field>
+        </record>
+
+        <record id="tier_5" model="incentive.rule.tier">
+            <field name="rule_id" ref="rule_2h_2025"/>
+            <field name="name">Tier 5</field>
+            <field name="level">5</field>
+            <field name="achievement_min">1.10</field>
+            <field name="achievement_max">99.0</field>
+            <field name="is_top_tier" eval="True"/>
+            <field name="allocation">1.05</field>
+            <field name="note">0.7875% -- full incentive scenario only</field>
+        </record>
+
+    </data>
+</odoo>

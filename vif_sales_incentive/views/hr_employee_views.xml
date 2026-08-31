@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_employee_form_incentive" model="ir.ui.view">
+        <field name="name">hr.employee.form.incentive</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <notebook position="inside">
+                <page string="Sales Incentive" name="sales_incentive">
+                    <group>
+                        <group string="Sales Organisation">
+                            <field name="incentive_branch_id"/>
+                            <field name="incentive_business_type"/>
+                            <field name="incentive_designation_id"/>
+                            <field name="is_vacant_slot"/>
+                        </group>
+                        <group string="Effective Dates">
+                            <field name="incentive_date_start"/>
+                            <field name="incentive_date_end"/>
+                        </group>
+                    </group>
+                    <group string="Eligibility">
+                        <group>
+                            <field name="branch_incentive_eligible"/>
+                        </group>
+                        <group>
+                            <field name="individual_incentive_eligible"/>
+                        </group>
+                    </group>
+                    <field name="incentive_payout_ids" readonly="1">
+                        <list>
+                            <field name="period_id"/>
+                            <field name="net_sales"/>
+                            <field name="achievement_pct" widget="percentage"/>
+                            <field name="tier_id"/>
+                            <field name="total_payout"/>
+                            <field name="currency_id" column_invisible="1"/>
+                        </list>
+                    </field>
+                </page>
+            </notebook>
+        </field>
+    </record>
+</odoo>

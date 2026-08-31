@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- S19: a salesperson sees only their own rows -->
+        <record id="rule_incentive_payout_own" model="ir.rule">
+            <field name="name">Incentive Payout: own records only</field>
+            <field name="model_id" ref="model_incentive_payout"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_incentive_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- S20: a manager additionally sees the whole subordinate subtree -->
+        <record id="rule_incentive_payout_subordinates" model="ir.rule">
+            <field name="name">Incentive Payout: subordinates</field>
+            <field name="model_id" ref="model_incentive_payout"/>
+            <field name="domain_force">
+                ['|',
+                    ('employee_id.user_id', '=', user.id),
+                    ('employee_id', 'child_of', user.employee_id.id)]
+            </field>
+            <field name="groups" eval="[(4, ref('group_incentive_manager'))]"/>
+        </record>
+
+        <!-- Finance / C-level: everything -->
+        <record id="rule_incentive_payout_all" model="ir.rule">
+            <field name="name">Incentive Payout: all</field>
+            <field name="model_id" ref="model_incentive_payout"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_incentive_admin'))]"/>
+        </record>
+
+        <record id="rule_incentive_target_own" model="ir.rule">
+            <field name="name">Incentive Target: own records only</field>
+            <field name="model_id" ref="model_incentive_target"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_incentive_user'))]"/>
+        </record>
+
+        <record id="rule_incentive_target_subordinates" model="ir.rule">
+            <field name="name">Incentive Target: subordinates</field>
+            <field name="model_id" ref="model_incentive_target"/>
+            <field name="domain_force">
+                ['|',
+                    ('employee_id.user_id', '=', user.id),
+                    ('employee_id', 'child_of', user.employee_id.id)]
+            </field>
+            <field name="groups" eval="[(4, ref('group_incentive_manager'))]"/>
+        </record>
+
+        <record id="rule_incentive_target_all" model="ir.rule">
+            <field name="name">Incentive Target: all</field>
+            <field name="model_id" ref="model_incentive_target"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_incentive_admin'))]"/>
+        </record>
+
+        <record id="rule_incentive_transaction_own" model="ir.rule">
+            <field name="name">Incentive Transaction: own records only</field>
+            <field name="model_id" ref="model_incentive_transaction"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_incentive_user'))]"/>
+        </record>
+
+        <record id="rule_incentive_transaction_subordinates" model="ir.rule">
+            <field name="name">Incentive Transaction: subordinates</field>
+            <field name="model_id" ref="model_incentive_transaction"/>
+            <field name="domain_force">
+                ['|',
+                    ('employee_id.user_id', '=', user.id),
+                    ('employee_id', 'child_of', user.employee_id.id)]
+            </field>
+            <field name="groups" eval="[(4, ref('group_incentive_manager'))]"/>
+        </record>
+
+        <record id="rule_incentive_transaction_all" model="ir.rule">
+            <field name="name">Incentive Transaction: all</field>
+            <field name="model_id" ref="model_incentive_transaction"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_incentive_admin'))]"/>
+        </record>
+
+        <!-- Multi-company -->
+        <record id="rule_incentive_period_company" model="ir.rule">
+            <field name="name">Incentive Period: multi-company</field>
+            <field name="model_id" ref="model_incentive_period"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+            <field name="global" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Effective FTE from the 'FTE - Introduction' sheet.
+             Branch column keeps Support at 0.25, Individual column drops it to 0. -->
+        <record id="designation_lead" model="incentive.designation">
+            <field name="name">Lead</field>
+            <field name="code">LEAD</field>
+            <field name="sequence">10</field>
+            <field name="fte_branch">1.5</field>
+            <field name="fte_individual">1.5</field>
+            <field name="branch_incentive_eligible" eval="True"/>
+            <field name="individual_incentive_eligible" eval="True"/>
+        </record>
+
+        <record id="designation_team" model="incentive.designation">
+            <field name="name">Team</field>
+            <field name="code">TEAM</field>
+            <field name="sequence">20</field>
+            <field name="fte_branch">1.0</field>
+            <field name="fte_individual">1.0</field>
+            <field name="branch_incentive_eligible" eval="True"/>
+            <field name="individual_incentive_eligible" eval="True"/>
+        </record>
+
+        <record id="designation_support" model="incentive.designation">
+            <field name="name">Support</field>
+            <field name="code">SUPPORT</field>
+            <field name="sequence">30</field>
+            <field name="fte_branch">0.25</field>
+            <field name="fte_individual">0.0</field>
+            <field name="branch_incentive_eligible" eval="True"/>
+            <field name="individual_incentive_eligible" eval="False"/>
+        </record>
+
+        <!-- Branches -->
+        <record id="branch_jkt" model="incentive.branch">
+            <field name="name">Jakarta</field><field name="code">JKT</field><field name="sequence">10</field>
+        </record>
+        <record id="branch_bdg" model="incentive.branch">
+            <field name="name">Bandung</field><field name="code">BDG</field><field name="sequence">20</field>
+        </record>
+        <record id="branch_sby" model="incentive.branch">
+            <field name="name">Surabaya</field><field name="code">SBY</field><field name="sequence">30</field>
+        </record>
+        <record id="branch_bli" model="incentive.branch">
+            <field name="name">Bali</field><field name="code">BLI</field><field name="sequence">40</field>
+        </record>
+        <record id="branch_mdn" model="incentive.branch">
+            <field name="name">Medan</field><field name="code">MDN</field><field name="sequence">50</field>
+        </record>
+    </data>
+</odoo>

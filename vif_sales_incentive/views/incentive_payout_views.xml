@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_incentive_payout_tree" model="ir.ui.view">
+        <field name="name">incentive.payout.tree</field>
+        <field name="model">incentive.payout</field>
+        <field name="arch" type="xml">
+            <list sample="1" decoration-muted="not is_eligible"
+                  decoration-success="tier_level >= 4">
+                <field name="period_id"/>
+                <field name="employee_id"/>
+                <field name="branch_id" optional="show"/>
+                <field name="business_type" optional="show"/>
+                <field name="target_incentive" sum="Target"/>
+                <field name="target_bonus" sum="Bonus Target" optional="show"/>
+                <field name="net_sales" sum="Net Sales"/>
+                <field name="achievement_pct" widget="percentage"/>
+                <field name="tier_id"/>
+                <field name="payout_rate" digits="[16,6]" optional="hide"/>
+                <field name="eligible_incentive" optional="show"/>
+                <field name="paid_prior_month" optional="show"/>
+                <field name="paid_current_month" optional="show"/>
+                <field name="payout_prior" sum="Prior"/>
+                <field name="payout_current" sum="Current"/>
+                <field name="payout_bonus" sum="Bonus"/>
+                <field name="branch_achievement_pct" widget="percentage" optional="show"/>
+                <field name="branch_tier_id" optional="show"/>
+                <field name="branch_payout" sum="Branch"/>
+                <field name="total_payout" sum="Total Payout"/>
+                <field name="is_eligible" widget="boolean_toggle"/>
+                <field name="is_frozen" optional="show" widget="boolean_toggle"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="tier_level" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_incentive_payout_form" model="ir.ui.view">
+        <field name="name">incentive.payout.form</field>
+        <field name="model">incentive.payout</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_recompute" type="object" string="Recompute"
+                            class="btn-primary" invisible="is_frozen"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_transactions" type="object"
+                                class="oe_stat_button" icon="fa-list"
+                                string="Transactions"/>
+                    </div>
+                    <widget name="web_ribbon" title="Frozen" bg_color="text-bg-danger"
+                            invisible="not is_frozen"/>
+                    <div class="oe_title">
+                        <h1><field name="employee_id" readonly="1"/></h1>
+                        <h3><field name="period_id" readonly="1"/></h3>
+                    </div>
+                    <group>
+                        <group string="Target">
+                            <field name="target_incentive"/>
+                            <field name="target_bonus"/>
+                            <field name="target_total"/>
+                            <field name="is_mixed"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Sequence 1 -- Tier">
+                            <field name="gross_sales"/>
+                            <field name="sales_return"/>
+                            <field name="net_sales"/>
+                            <field name="achievement_pct" widget="percentage"/>
+                            <field name="tier_id"/>
+                            <field name="payout_rate" digits="[16,6]"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Sequence 2 -- Eligible Base (discount gate)">
+                            <field name="eligible_incentive"/>
+                            <field name="eligible_bonus"/>
+                            <field name="excluded_discount"/>
+                        </group>
+                        <group string="Sequence 3 -- Fully Paid Base">
+                            <field name="paid_prior_month"/>
+                            <field name="paid_current_month"/>
+                            <field name="paid_bonus"/>
+                        </group>
+                    </group>
+                    <group string="Payout">
+                        <group>
+                            <field name="payout_prior"/>
+                            <field name="payout_current"/>
+                            <field name="payout_bonus"/>
+                        </group>
+                        <group>
+                            <field name="total_payout" class="oe_subtotal_footer_separator"/>
+                            <field name="is_eligible"/>
+                            <field name="is_frozen"/>
+                        </group>
+                    </group>
+                    <group string="Branch Stream (0.75%)">
+                        <group>
+                            <field name="branch_target"/>
+                            <field name="branch_net_sales"/>
+                            <field name="branch_achievement_pct" widget="percentage"/>
+                            <field name="branch_tier_id"/>
+                            <field name="branch_payout_rate" digits="[16,6]"/>
+                        </group>
+                        <group>
+                            <field name="branch_eligible"/>
+                            <field name="branch_paid"/>
+                            <field name="branch_pool"/>
+                            <field name="branch_fte"/>
+                            <field name="branch_fte_share" widget="percentage"/>
+                            <field name="branch_payout" class="oe_subtotal_footer_separator"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Calculation Log">
+                            <field name="computation_log" widget="text" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_incentive_payout_search" model="ir.ui.view">
+        <field name="name">incentive.payout.search</field>
+        <field name="model">incentive.payout</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id"/>
+                <field name="period_id"/>
+                <field name="branch_id"/>
+                <filter name="f_eligible" string="Eligible Month"
+                        domain="[('is_eligible','=',True)]"/>
+                <filter name="f_not_eligible" string="Not Eligible"
+                        domain="[('is_eligible','=',False)]"/>
+                <filter name="f_mixed" string="Mixed Scenario"
+                        domain="[('is_mixed','=',True)]"/>
+                <filter name="f_mine" string="My Incentive"
+                        domain="[('user_id','=',uid)]"/>
+                <group>
+                    <filter name="g_period" string="Period" context="{'group_by':'period_id'}"/>
+                    <filter name="g_branch" string="Branch" context="{'group_by':'branch_id'}"/>
+                    <filter name="g_tier" string="Tier" context="{'group_by':'tier_id'}"/>
+                    <filter name="g_manager" string="Manager" context="{'group_by':'manager_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_incentive_payout_pivot" model="ir.ui.view">
+        <field name="name">incentive.payout.pivot</field>
+        <field name="model">incentive.payout</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="branch_id" type="row"/>
+                <field name="period_id" type="col"/>
+                <field name="net_sales" type="measure"/>
+                <field name="total_payout" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_incentive_payout_graph" model="ir.ui.view">
+        <field name="name">incentive.payout.graph</field>
+        <field name="model">incentive.payout</field>
+        <field name="arch" type="xml">
+            <graph type="bar">
+                <field name="employee_id"/>
+                <field name="total_payout" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_incentive_payout" model="ir.actions.act_window">
+        <field name="name">Incentive Payouts</field>
+        <field name="res_model">incentive.payout</field>
+        <field name="view_mode">list,pivot,graph,form</field>
+        <field name="search_view_id" ref="view_incentive_payout_search"/>
+    </record>
+
+    <record id="action_incentive_my_payout" model="ir.actions.act_window">
+        <field name="name">My Incentive</field>
+        <field name="res_model">incentive.payout</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('user_id', '=', uid)]</field>
+    </record>
+
+</odoo>

@@ -4,7 +4,7 @@ from odoo.exceptions import ValidationError
 from odoo.tools import float_compare, float_round
 
 
-class IncentiveTransactionRefund(models.TransientModel):
+class IncentiveTransactionRefund(models.Model):
     """S10 -- create a (partial) credit note for the invoice behind a
     transaction, then link a negative reversal transaction so the payout is
     reduced by the refunded amount.
@@ -12,8 +12,13 @@ class IncentiveTransactionRefund(models.TransientModel):
     The refund amount is editable but capped at the line's remaining
     refundable amount (invoice line amount minus what was already refunded).
     """
+    # ponytail: regular model, not TransientModel -- Odoo Studio (Online) only
+    # works on regular models. Rows are the refund log; keeping them is a
+    # feature here (who refunded what, when) rather than clutter.
     _name = 'incentive.transaction.refund'
     _description = 'Refund Incentive Transaction'
+    _order = 'create_date desc'
+    _rec_name = 'transaction_id'
 
     transaction_id = fields.Many2one(
         'incentive.transaction', required=True, ondelete='cascade')
@@ -32,6 +37,10 @@ class IncentiveTransactionRefund(models.TransientModel):
         string='Refund Amount', required=True, currency_field='currency_id')
     currency_id = fields.Many2one(
         related='transaction_id.currency_id', readonly=True)
+    refund_move_id = fields.Many2one(
+        'account.move', string='Credit Note', readonly=True, copy=False,
+        help="Set once the credit note is posted. A record that already has "
+             "one cannot be refunded again.")
 
     @api.depends('transaction_id')
     def _compute_refundable_amount(self):
@@ -59,11 +68,18 @@ class IncentiveTransactionRefund(models.TransientModel):
 
     def action_refund(self):
         self.ensure_one()
+        # The record persists now (regular model), so the button survives the
+        # dialog and can be pressed twice. Without this, that is two credit
+        # notes for one refund.
+        if self.refund_move_id:
+            raise ValidationError(_(
+                'This refund was already processed as credit note %s.')
+                % self.refund_move_id.display_name)
         self._check_refund_amount()
         # Posting the credit note triggers the incentive refund transaction
         # (see account.move._create_incentive_refund_transactions), so no
         # separate reversal is created here.
-        self._create_credit_note()
+        self.refund_move_id = self._create_credit_note()
         # A full refund closes the original transaction.
         if float_compare(
                 self.refund_amount, self.refundable_amount,

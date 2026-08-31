@@ -3,7 +3,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 
-class IncentiveTargetCascade(models.TransientModel):
+class IncentiveTargetCascade(models.Model):
     """S02 -- cascade a branch rolling-forecast number to individual targets.
 
     Mirrors Step 5 + Step 6 of the client's '<BRANCH> 2H TARGET' sheets:
@@ -24,11 +24,20 @@ class IncentiveTargetCascade(models.TransientModel):
     BONUS bucket. The branch figure therefore still adds up to the rolling
     forecast even in a month with churn.
     """
+    # ponytail: regular model, not TransientModel -- Odoo Studio (Online) only
+    # works on regular models. The rows persist and double as a cascade run
+    # history; nothing reads them back, so an abandoned preview is only
+    # clutter. Add an ir.cron unlink of old rows if that clutter ever matters.
     _name = 'incentive.target.cascade'
     _description = 'Cascade Branch Target to Individuals'
+    _order = 'create_date desc'
+    _rec_name = 'period_id'
 
+    # ondelete='cascade' on every required m2o below: the rows persist now, and
+    # the default 'restrict' would make an old cascade run block deleting the
+    # period/branch/employee it mentions.
     period_id = fields.Many2one(
-        'incentive.period', required=True,
+        'incentive.period', required=True, ondelete='cascade',
         domain="[('state', 'in', ('draft', 'open', 'calculated'))]")
     branch_ids = fields.Many2many(
         'incentive.branch', string='Branches', required=True,
@@ -367,7 +376,7 @@ class IncentiveTargetCascade(models.TransientModel):
         return {'type': 'ir.actions.act_window_close'}
 
 
-class IncentiveTargetCascadeLine(models.TransientModel):
+class IncentiveTargetCascadeLine(models.Model):
     _name = 'incentive.target.cascade.line'
     _description = 'Cascade Preview Line'
 
@@ -376,7 +385,8 @@ class IncentiveTargetCascadeLine(models.TransientModel):
         'incentive.branch.target', required=True, ondelete='cascade')
     branch_id = fields.Many2one(
         related='branch_target_id.branch_id', readonly=True, string='Branch')
-    employee_id = fields.Many2one('hr.employee', required=True)
+    employee_id = fields.Many2one(
+        'hr.employee', required=True, ondelete='cascade')
     designation_id = fields.Many2one(
         related='employee_id.incentive_designation_id', readonly=True)
     fte = fields.Float(digits=(16, 2))
